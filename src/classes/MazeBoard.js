@@ -7,6 +7,8 @@ export default class MazeBoard {
     this.size = 400;
 
     this.setSizeScreen();
+
+    this.isArrowRightDown = false;
   }
 
   setSizeScreen() {
@@ -23,15 +25,26 @@ export default class MazeBoard {
 
   drawRectangle() {
     this.context.save();
-    this.context.beginPath();
-    this.context.fillStyle = "red";
     this.context.translate(
       innerWidth / 2 - this.size / 2,
       innerHeight / 2 - this.size / 2,
     );
-    this.context.transform(1, 0, 0, 1, 0, 0);
+    this.context.transform(1, -0.1, 0, 1, 0, 0);
+    this.context.fillStyle = "red";
     this.context.fillRect(0, 0, this.size, this.size);
-    this.context.closePath();
     this.context.restore();
+  }
+
+  addKeyboardEvents() {
+    window.addEventListener("keydown", (e) => {
+      if (e.code == "ArrowDown") {
+        this.isArrowRightDown = true;
+      }
+    });
+    window.addEventListener("keyup", (e) => {
+      if (e.code == "ArrowDown") {
+        this.isArrowRightDown = false;
+      }
+    });
   }
 }
