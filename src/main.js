@@ -5,3 +5,4 @@ const board = new MazeBoard();
 board.append();
 board.drawRectangle();
 board.addKeyboardEvents();
+board.animationLoop();
