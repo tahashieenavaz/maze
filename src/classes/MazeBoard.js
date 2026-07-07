@@ -1,18 +1,17 @@
 export default class MazeBoard {
   constructor() {
     this.isAppended = false;
-
     this.canvas = document.createElement("canvas");
     this.context = this.canvas.getContext("2d");
     this.size = 400;
 
     this.setSizeScreen();
 
-    this.isArrowRightDown = false;
-    this.isArrowLeftDown = false;
-
     // Renamed from skew to tilt, and tracking degrees
     this.tiltY = 0;
+    this.tiltX = 0;
+
+    this.keydown = new Set();
   }
 
   setSizeScreen() {
@@ -37,40 +36,50 @@ export default class MazeBoard {
       this.size,
       this.size,
     );
-
-    // Apply a CSS 3D transformation to the canvas DOM element
-    // perspective() gives it realistic depth. rotateY tilts it on the vertical axis.
-    this.canvas.style.transform = `perspective(800px) rotateY(${this.tiltY}deg)`;
+    this.canvas.style.transform = `perspective(800px) rotateY(${this.tiltY}deg) rotateX(${this.tiltX}deg)`;
   }
 
   addKeyboardEvents() {
     window.addEventListener("keydown", (e) => {
-      if (e.code == "ArrowRight") {
-        this.isArrowRightDown = true;
-      } else if (e.code == "ArrowLeft") {
-        this.isArrowLeftDown = true;
-      }
+      this.keydown.add(e.code);
     });
     window.addEventListener("keyup", (e) => {
-      if (e.code == "ArrowRight") {
-        this.isArrowRightDown = false;
-      } else if (e.code == "ArrowLeft") {
-        this.isArrowLeftDown = false;
-      }
+      this.keydown.delete(e.code);
     });
+  }
+
+  isDown(code) {
+    return this.keydown.has(code);
+  }
+
+  isNotDown(code) {
+    return !this.isDown(code);
   }
 
   animationLoop() {
     const loopCallback = () => {
-      if (this.isArrowRightDown && this.tiltY < 30) {
+      if (this.isDown("ArrowRight") && this.tiltY < 30) {
         this.tiltY += 1.5;
       }
-      if (this.isArrowLeftDown && this.tiltY > -30) {
+
+      if (this.isDown("ArrowUp") && this.tiltX < 30) {
+        this.tiltX += 1.5;
+      }
+
+      if (this.isDown("ArrowDown") && this.tiltX > -30) {
+        this.tiltX -= 1.5;
+      }
+
+      if (this.isDown("ArrowLeft") && this.tiltY > -30) {
         this.tiltY -= 1.5;
       }
 
-      if (!this.isArrowRightDown && !this.isArrowLeftDown) {
+      if (this.isNotDown("ArrowRight") && this.isNotDown("ArrowLeft")) {
         this.tiltY *= 0.9;
+      }
+
+      if (this.isNotDown("ArrowUp") && this.isNotDown("ArrowDown")) {
+        this.tiltX *= 0.9;
       }
 
       this.cleanBoard();
